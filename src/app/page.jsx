@@ -2,7 +2,7 @@
 "use client";
 import { useState, useEffect } from 'react';
 
-const choices = ['rock', 'paper', 'scissors', 'lizard', 'spock'];
+const choices = ['icon-rock.svg', 'paper', 'scissors', 'lizard', 'spock'];
 
 function getRandomChoice() {
   const randomIndex = Math.floor(Math.random() * choices.length);
@@ -56,11 +56,12 @@ export default function Home() {
   return (
     <div className="flex flex-col items-center mt-10">
       <h1 className="text-4xl font-bold mb-4">Rock, Paper, Scissors, Lizard, Spock</h1>
-      <div className="flex space-x-4">
-        {choices.map((choice) => (
+      <div className="relative">
+      <img src="/images/bg-pentagon.svg" alt="" />
+        {choices.map((choice, i) => (
           <button
-            key={choice}
-            className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+            key={i}
+            className={`bg-blue-500 ${i === 0 ? " absolute top-0" : ""} hover:bg-blue-700 text-white font-bold py-2 px-4 rounded`}
             onClick={() => handleUserChoice(choice)}
             disabled={userChoice}
           >
@@ -68,6 +69,7 @@ export default function Home() {
           </button>
         ))}
       </div>
+      
       {userChoice && (
         <div className="mt-4">
           <p>You chose: {userChoice}</p>
