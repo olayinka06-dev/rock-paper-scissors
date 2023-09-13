@@ -2,24 +2,25 @@
 "use client";
 import Image from "next/image";
 import { useState, useEffect } from "react";
+import { AiOutlineClose } from "react-icons/ai";
 
 // setInterval(() => {
-  //   const utterance = new SpeechSynthesisUtterance("Rock, Paper, Scissors, Lizard, Spock");
-  //   speechSynthesis.speak(utterance)
-  // }, 2000);
+//   const utterance = new SpeechSynthesisUtterance("Rock, Paper, Scissors, Lizard, Spock");
+//   speechSynthesis.speak(utterance)
+// }, 2000);
 
-  const choices = [
-    "icon-rock.svg",
-    "icon-paper.svg",
-    "icon-scissors.svg",
-    "icon-lizard.svg",
-    "icon-spock.svg",
-  ];
+const choices = [
+  "icon-rock.svg",
+  "icon-paper.svg",
+  "icon-scissors.svg",
+  "icon-lizard.svg",
+  "icon-spock.svg",
+];
 
-  function getRandomChoice() {
-    const randomIndex = Math.floor(Math.random() * choices.length);
-    return choices[randomIndex];
-  }
+function getRandomChoice() {
+  const randomIndex = Math.floor(Math.random() * choices.length);
+  return choices[randomIndex];
+}
 
 const ChoiceImage = ({ userChoice }) => {
   return (
@@ -67,6 +68,7 @@ const HouseImage = ({ computerChoice }) => {
         height={80}
         src={`/images/${computerChoice}`}
         alt="logo"
+        className="mx-auto"
       />
     </div>
   );
@@ -82,8 +84,7 @@ export default function Home() {
   const [stepTwo, setStepTwo] = useState(false);
   const [stepThree, setStepThree] = useState(false);
   const [stepFour, setStepFour] = useState(false);
-
-  
+  const [openModal, setOpenModal] = useState(false);
 
   useEffect(() => {
     const handleResult = () => {
@@ -117,17 +118,26 @@ export default function Home() {
   }, [userChoice, computerChoice]);
 
   // Save userScore to local storage whenever it changes
-
   useEffect(() => {
     localStorage.setItem("userScore", JSON.stringify(userScore));
   }, [userScore]);
 
   useEffect(() => {
-    const storedScores = localStorage.getItem("userScore");
-    if (storedScores) {
-      setUserScore(JSON.parse(storedScores));
-    } else {
-      setUserScore(0);
+    const storedUserScore = localStorage.getItem("userScore");
+    if (storedUserScore !== null) {
+      setUserScore(parseInt(storedUserScore)); // Update userScore immediately
+    }
+  }, []);
+
+  // Save houseScore to local storage whenever it changes
+  useEffect(() => {
+    localStorage.setItem("houseScore", JSON.stringify(computerScore));
+  }, [computerScore]);
+
+  useEffect(() => {
+    const storedScores = localStorage.getItem("houseScore");
+    if (storedScores !== null) {
+      setComputerScore(JSON.parse(storedScores)); // Update houseScore immediately
     }
   }, []);
 
@@ -161,110 +171,136 @@ export default function Home() {
   };
 
   return (
-    <section className="bg-[hsl(214, 47%, 23%)] flex justify-center items-center bg w-full h-screen">
-      <div className="flex w-full max-w-[600px] gap-5 flex-col items-center">
-        <div className="border border-white mb-20 w-full flex justify-between rounded-xl py-4 px-5">
-          <div className="flex flex-col ">
-            <span className="text-white font-bold text-lg leading-[16px]">
-              Rock <br /> Paper <br /> Scissors <br /> Lizard <br /> Spock
-            </span>
-          </div>
-          <div className="flex flex-row items-center gap-3">
-            <div className="bg-white px-8 rounded-xl justify-center flex flex-col ga-1 items-center">
-              <span className="text-[rgb(78,89,166)]">user</span>
-              <h1 className="text-[rgb(85,81,105)] text-[25px]">{userScore}</h1>
+    <section className="bg-[hsl(214, 47%, 23%)] py-10 bg w-full h-screen">
+      <div className="flex flex-col justify-center items-center">
+        <div className="flex w-full max-w-[600px] gap-5 flex-col items-center">
+          <div className="border border-white mb-20 w-full flex justify-between rounded-xl py-4 px-5">
+            <div className="flex flex-col ">
+              <span className="text-white font-bold text-lg leading-[16px]">
+                Rock <br /> Paper <br /> Scissors <br /> Lizard <br /> Spock
+              </span>
             </div>
-            <div className="bg-white px-8 rounded-xl justify-center flex flex-col ga-1 items-center">
-              <span className="text-[rgb(78,89,166)]">house</span>
-              <h1 className="text-[rgb(85,81,105)] text-[25px]">
-                {computerScore}
-              </h1>
+            <div className="flex flex-row items-center gap-3">
+              <div className="bg-white px-8 rounded-xl justify-center flex flex-col ga-1 items-center">
+                <span className="text-[rgb(78,89,166)]">user</span>
+                <h1 className="text-[rgb(85,81,105)] text-[25px]">
+                  {userScore}
+                </h1>
+              </div>
+              <div className="bg-white px-8 rounded-xl justify-center flex flex-col ga-1 items-center">
+                <span className="text-[rgb(78,89,166)]">house</span>
+                <h1 className="text-[rgb(85,81,105)] text-[25px]">
+                  {computerScore}
+                </h1>
+              </div>
             </div>
           </div>
+
+          {stepOne && (
+            <div className="relative">
+              <img src="/images/bg-pentagon.svg" alt="" />
+              {choices.map((choice, i) => (
+                <button
+                  key={i}
+                  className={`bg-white border-[7px] border-solid rounded-full py-4 px-5 ${
+                    i === 2
+                      ? "absolute top-[-40px] border-[rgb(235,169,33)] left-[130px]"
+                      : i === 4
+                      ? "absolute top-[45px] px-6 border-[hsl(189,59%,53%)] left-[-40px]"
+                      : i === 1
+                      ? "absolute border-[hsl(230,89%,62%)] top-[45px] right-[-40px]"
+                      : i === 0
+                      ? "absolute border-[hsl(349,71%,52%)] bottom-[-20px] py-5 right-[0px]"
+                      : "absolute border-[hsl(261,73%,60%)] py-5 bottom-[-20px] left-[0px]"
+                  }`}
+                  onClick={() => handleUserChoice(choice)}
+                  disabled={userChoice}
+                >
+                  <Image
+                    priority
+                    width={40}
+                    height={40}
+                    src={`/images/${choice}`}
+                    alt="choice"
+                  />
+                </button>
+              ))}
+            </div>
+          )}
+
+          {userChoice && stepTwo && (
+            <div className="flex w-full justify-between items-center">
+              <div className="flex gap-2 flex-col">
+                <h2 className="text-white text-[25px]">You Picked</h2>
+                <ChoiceImage userChoice={userChoice} />
+              </div>
+              <div className="flex flex-col gap-2">
+                <h2 className="text-white text-[25px]">The House Picked</h2>
+                <div className="h-40 w-40 rounded-full bg-[rgb(23,34,62)]"></div>
+              </div>
+            </div>
+          )}
+          {userChoice && stepThree && (
+            <div className="flex w-full justify-between items-center">
+              <div className="flex gap-2 flex-col">
+                <h2 className="text-white text-[25px]">You Picked</h2>
+                <ChoiceImage userChoice={userChoice} />
+              </div>
+              <div className="flex flex-col gap-2">
+                <h2 className="text-white text-[25px]">The House Picked</h2>
+                <div className="">
+                  <HouseImage computerChoice={computerChoice} />
+                </div>{" "}
+              </div>
+            </div>
+          )}
+          {userChoice && stepFour && (
+            <div className="flex w-full justify-between items-center">
+              <div className="flex gap-2 flex-col">
+                <h2 className="text-white text-[25px]">You Picked</h2>
+                <ChoiceImage userChoice={userChoice} />
+              </div>
+              <div className="">
+                <h1 className="text-[25px] text-white">{result}</h1>
+                <button
+                  className="bg-white hover:bg-white text-black font-bold py-2 px-6 rounded mt-4"
+                  onClick={resetGame}
+                >
+                  Play Again
+                </button>
+              </div>
+              <div className="flex flex-col gap-2">
+                <h2 className="text-white text-[25px]">The House Picked</h2>
+                <div className="">
+                  <HouseImage computerChoice={computerChoice} />
+                </div>{" "}
+              </div>
+            </div>
+          )}
         </div>
-
-        {stepOne && (
-          <div className="relative">
-            <img src="/images/bg-pentagon.svg" alt="" />
-            {choices.map((choice, i) => (
-              <button
-                key={i}
-                className={`bg-white border-[7px] border-solid rounded-full py-4 px-5 ${
-                  i === 2
-                    ? "absolute top-[-40px] border-[rgb(235,169,33)] left-[130px]"
-                    : i === 4
-                    ? "absolute top-[45px] px-6 border-[hsl(189,59%,53%)] left-[-40px]"
-                    : i === 1
-                    ? "absolute border-[hsl(230,89%,62%)] top-[45px] right-[-40px]"
-                    : i === 0
-                    ? "absolute border-[hsl(349,71%,52%)] bottom-[-20px] py-5 right-[0px]"
-                    : "absolute border-[hsl(261,73%,60%)] py-5 bottom-[-20px] left-[0px]"
-                }`}
-                onClick={() => handleUserChoice(choice)}
-                disabled={userChoice}
-              >
-                <Image
-                  priority
-                  width={40}
-                  height={40}
-                  src={`/images/${choice}`}
-                  alt="choice"
-                />
-              </button>
-            ))}
-          </div>
-        )}
-
-        {userChoice && stepTwo && (
-          <div className="flex w-full justify-between items-center">
-            <div className="flex gap-2 flex-col">
-              <h2 className="text-white text-[25px]">You Picked</h2>
-              <ChoiceImage userChoice={userChoice} />
-            </div>
-            <div className="flex flex-col gap-2">
-              <h2 className="text-white text-[25px]">The House Picked</h2>
-              <div className="h-40 w-40 rounded-full bg-[rgb(23,34,62)]"></div>
-            </div>
-          </div>
-        )}
-        {userChoice && stepThree && (
-          <div className="flex w-full justify-between items-center">
-            <div className="flex gap-2 flex-col">
-              <h2 className="text-white text-[25px]">You Picked</h2>
-              <ChoiceImage userChoice={userChoice} />
-            </div>
-            <div className="flex flex-col gap-2">
-              <h2 className="text-white text-[25px]">The House Picked</h2>
-              <div className="">
-                <HouseImage computerChoice={computerChoice} />
-              </div>{" "}
-            </div>
-          </div>
-        )}
-        {userChoice && stepFour && (
-          <div className="flex w-full justify-between items-center">
-            <div className="flex gap-2 flex-col">
-              <h2 className="text-white text-[25px]">You Picked</h2>
-              <ChoiceImage userChoice={userChoice} />
-            </div>
-            <div className="">
-              <h1 className="text-[25px] text-white">{result}</h1>
-              <button
-                className="bg-white hover:bg-white text-black font-bold py-2 px-6 rounded mt-4"
-                onClick={resetGame}
-              >
-                Play Again
-              </button>
-            </div>
-            <div className="flex flex-col gap-2">
-              <h2 className="text-white text-[25px]">The House Picked</h2>
-              <div className="">
-                <HouseImage computerChoice={computerChoice} />
-              </div>{" "}
-            </div>
-          </div>
-        )}
       </div>
+
+      <button
+        onClick={() => setOpenModal(true)}
+        class="inline-flex fixed bottom-3 right-3 text-white bg-indigo-500 border-0 py-2 px-6 focus:outline-none hover:bg-indigo-600 rounded text-lg"
+      >
+        Rules
+      </button>
+      {openModal && (
+        <section className="w-full fixed top-0 left-0 bottom-0 h-screen flex justify-center items-center">
+          <div className="w-[30%] bg-white px-5 py-6 rounded-xl">
+            <div className="flex items-center justify-between">
+              <h2 className="text-[rgb(53,62,87)] text-[25px]">Rules</h2>
+              <span className="text-[25px] opacity-80 hover:opacity-100 cursor-pointer" onClick={()=> setOpenModal(false)}>
+                <AiOutlineClose />
+              </span>
+            </div>
+            <div className="mx-auto">
+              <img className="mx-auto" src="/images/image-rules-bonus.svg" alt="" />
+            </div>
+          </div>
+        </section>
+      )}
     </section>
   );
 }
